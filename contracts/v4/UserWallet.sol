@@ -68,6 +68,7 @@ contract DefaultSweeper is AbstractSweeper {
         if (success) {
             controller.logSweep(this, destination, _token, _amount);
         }
+
         return success;
     }
 }
