@@ -37,10 +37,18 @@ contract Token {
     }
 }
 
+/**
+ * 토큰 전송 컨트랙트
+ * 입금용 사용자 지갑에서 요청되어 처리
+ */
 contract DefaultSweeper is AbstractSweeper {
     function DefaultSweeper(address controller)
              AbstractSweeper(controller) {}
 
+    /**
+     * 관리 사용자 계정으로 토큰 전송
+     * 컨트랙트 배포자 -> 관리 사용자로 지정되어 있음
+     */
     function sweep(address _token, uint _amount)
     canSweep
     returns (bool) {
@@ -49,6 +57,7 @@ contract DefaultSweeper is AbstractSweeper {
 
         if (_token != address(0)) {
             Token token = Token(_token);
+
             uint amount = _amount;
             if (amount > token.balanceOf(this)) {
                 return false;
@@ -73,6 +82,9 @@ contract DefaultSweeper is AbstractSweeper {
     }
 }
 
+/**
+ * 입금용 사용자 지갑 컨트랙트
+ */
 contract UserWallet {
     AbstractSweeperList sweeperList;
     function UserWallet(address _sweeperlist) {
@@ -87,6 +99,10 @@ contract UserWallet {
         (_data);
      }
 
+    /**
+     * 토큰 관리용 계정을 전송
+     * 토큰 전송을 위해 sweeper에게 요청함
+     */
     function sweep(address _token, uint _amount)
     returns (bool) {
         (_amount);
@@ -127,7 +143,7 @@ contract Controller is AbstractSweeperList {
     function Controller() 
     {
         owner = msg.sender;
-        destination = msg.sender;
+        destination = msg.sender; // 토큰 관리용 사용자 계정
         authorizedCaller = msg.sender;
     }
 
@@ -143,7 +159,10 @@ contract Controller is AbstractSweeperList {
         owner = _owner;
     }
 
-    function makeWallet() onlyAdmins returns (address wallet)  {
+    /**
+     * 입금용 사용자 지갑 생성(Contract Address)
+     */
+    function makeWallet() onlyAdmins returns (address wallet) {
         wallet = address(new UserWallet(this));
         LogNewWallet(wallet);
     }
@@ -163,6 +182,9 @@ contract Controller is AbstractSweeperList {
         sweepers[_token] = _sweeper;
     }
 
+    /**
+     * 토큰 전송 컨트랙트 가져오기
+     */
     function sweeperOf(address _token) returns (address) {
         address sweeper = sweepers[_token];
         if (sweeper == 0) sweeper = defaultSweeper;
