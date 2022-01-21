@@ -1,10 +1,14 @@
 async function main() {
   // We get the contract to deploy
-  const Token = await ethers.getContractFactory("MyToken");
+  const Token = await ethers.getContractFactory('MyToken');
   const token = await Token.deploy();
 
-  // const UserWallet = await ethers.getContractFactory("UserWallet");
-  // const userWallet = await UserWallet.deploy();
+  console.log('Token deployed to: ', token.address);
+
+  const Controller = await ethers.getContractFactory('Controller');
+  const controller = await Controller.deploy();
+
+  console.log('Sweeper deployed to: ', controller.address);
 }
 
 main()
